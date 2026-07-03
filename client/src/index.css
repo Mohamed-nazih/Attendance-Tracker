@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ===== NEO-BRUTALISM / SKETCHY DESIGN SYSTEM ===== */
+:root {
+  /* Colors */
+  --bg-base:      #FAF6EE;       /* Warm paper/sand background */
+  --bg-card:      #FFFFFF;       /* Card background */
+  --text-primary: #000000;       /* High contrast pure black */
+  --text-secondary:#3F3F46;      /* Charcoal text */
+  --text-muted:    #71717A;
+  
+  /* Primary Accent - Classic Brutalist Lime Green */
+  --primary:        #C9F135;     
+  --primary-text:   #000000;
+  --primary-dark:   #B8DC29;
+
+  /* Secondary Accents - Brutalist Yellow, Pink, Blue */
+  --brutal-yellow:  #FDE047;
+  --brutal-pink:    #F472B6;
+  --brutal-blue:    #60A5FA;
+  --brutal-orange:  #FB923C;
+
+  /* Semantic borders and shadows */
+  --border-width:   3px;
+  --border-color:   #000000;
+  
+  /* Flat hard offset shadows (no blur) */
+  --shadow-flat-sm: 2px 2px 0px 0px #000000;
+  --shadow-flat-md: 4px 4px 0px 0px #000000;
+  --shadow-flat-lg: 8px 8px 0px 0px #000000;
+
+  /* Fonts */
+  --font-sketch:    'Architects Daughter', cursive, sans-serif;
+  --font-sans:      'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ===== BASE STYLES ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Sketchy fonts for headers */
+h1, h2, h3, h4, .sketchy-text {
+  font-family: var(--font-sketch);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ===== NEO-BRUTALIST COMPONENT STYLES ===== */
+
+/* Sketchy card / brutalist card */
+.brutal-card {
+  background: var(--bg-card);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 8px 16px 8px 12px / 12px 8px 16px 8px; /* Slightly irregular sketchy corners */
+  box-shadow: var(--shadow-flat-md);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.brutal-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px 0px #000000;
+}
+
+.brutal-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+/* Neo-brutalist buttons */
+.brutal-btn {
+  font-family: var(--font-sketch);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: var(--primary-text);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 6px 12px 6px 10px / 10px 6px 12px 6px;
+  box-shadow: var(--shadow-flat-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.brutal-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px 0px #000000;
+  background: var(--primary-dark);
+}
+
+.brutal-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px #000000;
+}
+
+.brutal-btn-secondary {
+  background: #FFFFFF;
+}
+
+.brutal-btn-secondary:hover {
+  background: #FAF6EE;
+}
+
+/* Brutalist input field */
+.brutal-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #FFFFFF;
+  color: #000000;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  box-shadow: var(--shadow-flat-sm);
+  transition: all 0.15s ease;
+}
+
+.brutal-input:focus {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #000000;
+  border-color: var(--border-color);
+}
+
+/* Brutalist badging */
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-family: var(--font-sketch);
+  border: 2px solid #000000;
+  border-radius: 99px;
+  font-size: 12px;
+}
+
+/* Scrollbar sketchy styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); border-left: 2px solid #000000; }
+::-webkit-scrollbar-thumb { background: #000000; border: 2px solid var(--bg-base); border-radius: 4px; }
