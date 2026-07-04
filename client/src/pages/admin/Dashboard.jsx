@@ -375,10 +375,14 @@ function SessionReportCard({ dateStr, report, onEdit }) {
 // ── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, iconBg, iconColor, label, value, sub }) {
   return (
-    <div className="brutal-card" style={{ padding: '18px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+    <div className="brutal-card" style={{
+      padding: '14px 12px', display: 'flex', alignItems: 'center', gap: '12px',
+      background: '#FFFFFF'
+    }}>
       <div style={{
-        padding: '10px', borderRadius: '8px', border: '2px solid #000000',
-        background: iconBg, flexShrink: 0, boxShadow: '2px 2px 0px 0px #000000'
+        width: 32, height: 32, borderRadius: '8px', border: '2px solid #000000',
+        background: iconBg, flexShrink: 0, boxShadow: '2px 2px 0px 0px #000000',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
         <Icon size={20} color="#000000" />
       </div>
@@ -659,7 +663,7 @@ export default function AdminDashboard() {
       <TeacherApprovalPanel />
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '28px' }}>
         <StatCard icon={Users} iconBg="var(--primary)" iconColor="#000000" label="Total Students" value={totalStudents} />
         <StatCard icon={Calendar} iconBg="#DBEAFE" iconColor="#1E40AF" label="Total Working Days" value={getTotalWorkingDays()} sub={`Semester ${currentSemester}`} />
         <StatCard icon={CalendarCheck} iconBg="#E2FBE9" iconColor="#0F5132" label="Selected Day's Attendance" value={`${dayPercent}%`} sub={sessionsLockedCount > 0 ? `${sessionsLockedCount} session(s) marked` : 'Awaiting markings'} />

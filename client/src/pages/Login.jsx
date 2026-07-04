@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_CLASS_TEACHER, usernameToEmail } from '../constants/auth';
-import { useAttendance } from '../context/AttendanceContext';
+import { useAttendance, ALL_STUDENTS } from '../context/AttendanceContext';
 
 function Input({ icon: Icon, type = 'text', placeholder, value, onChange, onToggle, showToggle, disabled, ...rest }) {
   return (
@@ -49,45 +49,6 @@ function Input({ icon: Icon, type = 'text', placeholder, value, onChange, onTogg
   );
 }
 
-function PendingApprovalModal({ onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.58)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
-      }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 14 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 14 }}
-        className="brutal-card"
-        style={{ maxWidth: '420px', width: '100%', padding: '28px 24px', textAlign: 'center', background: '#FFFFFF' }}
-      >
-        <div style={{
-          width: 58, height: 58, borderRadius: '14px', border: '3px solid #000000',
-          background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 16px', boxShadow: '3px 3px 0px 0px #000000',
-        }}>
-          <Lock size={25} color="#000000" />
-        </div>
-        <h2 style={{ fontSize: '22px', fontWeight: '900', margin: '0 0 8px', color: '#000000' }}>
-          Approval Pending
-        </h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 22px', lineHeight: 1.55, fontWeight: '650' }}>
-          Your teacher account has been created. The Class Teacher must approve it before you can use the teacher dashboard.
-        </p>
-        <button type="button" onClick={onClose} className="brutal-btn" style={{ width: '100%' }}>
-          Back to Login
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 function Btn({ children, loading, disabled, onClick, type = 'button', secondary }) {
   return (
     <motion.button
@@ -113,7 +74,6 @@ function LoginView({ onSwitch }) {
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
   const [loading,  setLoading]  = useState(false);
-  const [pendingApproval, setPendingApproval] = useState(false);
 
   const from = location.state?.from?.pathname || null;
 
@@ -140,20 +100,15 @@ function LoginView({ onSwitch }) {
         navigate(from || '/', { replace: true });
       }
     } catch (err) {
-      if (err.pendingApproval) {
-        setPendingApproval(true);
-      } else {
-        toast.error(err.message || 'Login failed');
-      }
+      toast.error(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Input icon={User} placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
+      <Input icon={User} placeholder="Username or Email" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
       <Input
         icon={Lock} type={showPw ? 'text' : 'password'} placeholder="Password"
         value={password} onChange={e => setPassword(e.target.value)}
@@ -169,17 +124,12 @@ function LoginView({ onSwitch }) {
         </button>
       </p>
     </form>
-    <AnimatePresence>
-      {pendingApproval && <PendingApprovalModal onClose={() => setPendingApproval(false)} />}
-    </AnimatePresence>
-    </>
   );
 }
 
 // ── View: Register ────────────────────────────────────────────────────────────
 function RegisterView({ onSwitch }) {
   const { signUp } = useAuth();
-  const { students: ALL_STUDENTS } = useAttendance();
 
   const [role,            setRole]            = useState('student');
   const [rollNo,          setRollNo]          = useState('');
@@ -223,7 +173,13 @@ function RegisterView({ onSwitch }) {
 
     if (!password || !confirm) { toast.error('Please fill in password fields'); return; }
     if (password !== confirm)  { toast.error('Passwords do not match'); return; }
-    if (password.length < 6)   { toast.error('Password must be at least 6 characters'); return; }
+    
+    // Strict Password Policy
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      toast.error('Password does not meet requirements');
+      return;
+    }
 
     setLoading(true);
     try {

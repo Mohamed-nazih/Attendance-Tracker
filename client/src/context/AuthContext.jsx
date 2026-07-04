@@ -231,11 +231,7 @@ export function AuthProvider({ children }) {
       if (demoPasswords[loginEmail] && demoPasswords[loginEmail] !== password) {
         throw new Error('Invalid login credentials');
       }
-      if (match.role === 'teacher' && match.approved !== true) {
-        const pendingError = new Error('Teacher account approval pending');
-        pendingError.pendingApproval = true;
-        throw pendingError;
-      }
+      // Let pending teachers stay signed in so they hit the pending screen
       setUser(match);
       setProfile(match);
       saveDemoUser(match);
@@ -255,14 +251,7 @@ export function AuthProvider({ children }) {
         throw new Error('User profile not found. Your account may have been rejected or deleted.');
       }
       
-      if (signedInProfile.role === 'teacher' && signedInProfile.approved !== true) {
-        await supabase.auth.signOut();
-        setUser(null);
-        setProfile(null);
-        const pendingError = new Error('Teacher account approval pending');
-        pendingError.pendingApproval = true;
-        throw pendingError;
-      }
+      // Let pending teachers stay signed in so they hit the pending screen
       setUser(data.user);
       setProfile(signedInProfile);
     }
