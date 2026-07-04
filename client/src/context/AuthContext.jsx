@@ -157,8 +157,17 @@ export function AuthProvider({ children }) {
 
   async function signUp({ email, password, fullName, registerNo, role, username }) {
     const normalizedEmail = email.includes('@') ? email : usernameToEmail(email);
+    const selectedUsername = (username || fullName).trim();
 
     if (isDemoMode) {
+      // Check for duplicate username in demo
+      const existing = Object.values(DEMO_ACCOUNTS).find(
+        a => (a.username || a.name || '').toLowerCase() === selectedUsername.toLowerCase()
+      );
+      if (existing) {
+        throw new Error(`The username "${selectedUsername}" is already taken. Please choose another one.`);
+      }
+
       // Create a demo user profile in memory
       const demoId = `demo-${Math.random().toString(36).substr(2, 9)}`;
       const newProfile = {
@@ -172,6 +181,15 @@ export function AuthProvider({ children }) {
       DEMO_ACCOUNTS[normalizedEmail] = newProfile;
       setDemoPassword(normalizedEmail, password);
       return { user: { id: demoId, email: normalizedEmail } };
+    }
+
+    // Check if username is already taken in production
+    const { data: matchedEmail } = await supabase.rpc('get_login_email', {
+      identifier: selectedUsername
+    });
+    
+    if (matchedEmail) {
+      throw new Error(`The username "${selectedUsername}" is already taken. Please choose another one.`);
     }
 
     const { data, error } = await supabase.auth.signUp({
