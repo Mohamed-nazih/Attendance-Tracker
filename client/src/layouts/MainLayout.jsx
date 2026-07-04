@@ -180,9 +180,7 @@ export default function MainLayout({ role = 'teacher' }) {
               <ClipboardList className="w-5 h-5" />
             </button>
           ) : (
-            <button className="p-1.5 rounded-lg border-2 border-black bg-white shadow-[1px_1px_0px_0px_#000000]">
-              <Bell className="w-5 h-5" />
-            </button>
+            <div className="w-9 h-9" /> /* Spacer to keep logo centered */
           )}
         </header>
 
