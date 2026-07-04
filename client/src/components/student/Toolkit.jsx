@@ -76,11 +76,11 @@ function AttendancePlannerModal({ isOpen, onClose, stats }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Attendance Planner" icon={Target}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
         <div className="brutal-card" style={{ padding: '12px', background: '#FEF3C7' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', margin: '0 0 4px', opacity: 0.7 }}>Present Sessions</p>
+          <p style={{ fontSize: '11px', fontWeight: '700', margin: '0 0 4px', opacity: 0.7 }}>Present Days</p>
           <p style={{ fontSize: '24px', fontWeight: '900', margin: 0, fontFamily: 'var(--font-sketch)' }}>{p}</p>
         </div>
         <div className="brutal-card" style={{ padding: '12px', background: '#E0E7FF' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', margin: '0 0 4px', opacity: 0.7 }}>Working Sessions</p>
+          <p style={{ fontSize: '11px', fontWeight: '700', margin: '0 0 4px', opacity: 0.7 }}>Working Days</p>
           <p style={{ fontSize: '24px', fontWeight: '900', margin: 0, fontFamily: 'var(--font-sketch)' }}>{w}</p>
         </div>
       </div>
