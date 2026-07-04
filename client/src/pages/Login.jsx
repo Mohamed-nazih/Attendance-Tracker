@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_CLASS_TEACHER, usernameToEmail } from '../constants/auth';
 import { useAttendance, ALL_STUDENTS } from '../context/AttendanceContext';
+import logo from '../assets/logo.svg';
 
 function Input({ icon: Icon, type = 'text', placeholder, value, onChange, onToggle, showToggle, disabled, ...rest }) {
   return (
@@ -389,7 +390,7 @@ export default function Login() {
             margin: '0 auto 16px',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-            <img src="/logo.png" alt="24BCAA Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src={logo} alt="24BCAA Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <AnimatePresence mode="wait">
             <motion.div

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../assets/logo.svg';
 import {
   LayoutDashboard,
   ClipboardList,
@@ -65,7 +66,7 @@ export default function MainLayout({ role = 'teacher' }) {
           boxShadow: '2px 2px 0px 0px #000000',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
         }}>
-          <GraduationCap className="w-5 h-5 text-black" />
+          <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
         </div>
         <div>
           <p className="font-extrabold text-lg uppercase tracking-tight" style={{ fontFamily: 'var(--font-sketch)' }}>24BCAA</p>
@@ -169,7 +170,7 @@ export default function MainLayout({ role = 'teacher' }) {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <GraduationCap className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+            <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
             <span className="font-extrabold text-sm uppercase tracking-wider" style={{ fontFamily: 'var(--font-sketch)' }}>24BCAA</span>
           </div>
           {role !== 'student' ? (
