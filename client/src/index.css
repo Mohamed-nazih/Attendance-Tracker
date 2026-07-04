@@ -44,7 +44,7 @@ body {
   margin: 0;
   background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-sketch);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -123,7 +123,7 @@ h1, h2, h3, h4, .sketchy-text {
   color: #000000;
   border: var(--border-width) solid var(--border-color);
   border-radius: 8px;
-  font-family: var(--font-sans);
+  font-family: var(--font-sketch);
   font-size: 14px;
   font-weight: 500;
   outline: none;
