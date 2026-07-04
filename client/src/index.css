@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap');
 @import "tailwindcss";
 
 /* ===== NEO-BRUTALISM / SKETCHY DESIGN SYSTEM ===== */
@@ -31,7 +31,7 @@
   --shadow-flat-lg: 8px 8px 0px 0px #000000;
 
   /* Fonts */
-  --font-sketch:    'Space Grotesk', sans-serif;
+  --font-sketch:    'Comic Neue', 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
   --font-sans:      'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
