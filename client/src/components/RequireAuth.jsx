@@ -143,8 +143,8 @@ export default function RequireAuth({ children, role }) {
 
   if (loading) return <Spinner />;
 
-  // Not logged in → send to login
-  if (!user) {
+  // Not logged in or missing profile → send to login
+  if (!user || (!profile && !loading)) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

@@ -128,9 +128,16 @@ export function AuthProvider({ children }) {
     // Get the current session on mount (handles page refresh)
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        setUser(session.user);
         const p = await loadProfile(session.user.id);
-        setProfile(p);
+        if (!p && !isDemoMode) {
+          // If profile is deleted/rejected, sign them out
+          await supabase.auth.signOut();
+          setUser(null);
+          setProfile(null);
+        } else {
+          setUser(session.user);
+          setProfile(p);
+        }
       }
       setLoading(false);
     });
@@ -139,9 +146,15 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          setUser(session.user);
           const p = await loadProfile(session.user.id);
-          setProfile(p);
+          if (!p && !isDemoMode) {
+            await supabase.auth.signOut();
+            setUser(null);
+            setProfile(null);
+          } else {
+            setUser(session.user);
+            setProfile(p);
+          }
         } else {
           setUser(null);
           setProfile(null);
