@@ -84,6 +84,9 @@ function EditAttendancePanel({ dateStr, session, onClose }) {
     onDuty: Object.values(editMap).filter(v => v === 'On Duty').length,
   };
 
+  const absentList = ALL_STUDENTS.filter(s => editMap[s.id] === 'Absent');
+  const onDutyList = ALL_STUDENTS.filter(s => editMap[s.id] === 'On Duty');
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -144,6 +147,45 @@ function EditAttendancePanel({ dateStr, session, onClose }) {
             </div>
           ))}
         </div>
+
+        {/* Absent and On Duty Previews */}
+        {(absentList.length > 0 || onDutyList.length > 0) && (
+          <div style={{ padding: '12px 24px', borderBottom: '3px solid #000000', background: '#FAFAFA' }}>
+            {absentList.length > 0 && (
+              <div style={{ marginBottom: onDutyList.length > 0 ? '12px' : 0 }}>
+                <p style={{ fontSize: '11px', fontWeight: '800', color: '#EF4444', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-sketch)' }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444', border: '1px solid #000000', display: 'inline-block' }} />
+                  Absent ({absentList.length})
+                </p>
+                {absentList.map(s => (
+                  <div key={s.id} style={{ display: 'flex', gap: '8px', padding: '3px 0', fontSize: '13px' }}>
+                    <span style={{ color: 'var(--text-secondary)', minWidth: '22px', fontWeight: '700' }}>{s.roll_no.toString().padStart(2, '0')}</span>
+                    <span style={{ fontWeight: '700' }}>{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {absentList.length > 0 && onDutyList.length > 0 && (
+              <div style={{ height: '2px', background: '#000000', margin: '12px 0' }} />
+            )}
+
+            {onDutyList.length > 0 && (
+              <div>
+                <p style={{ fontSize: '11px', fontWeight: '800', color: '#F59E0B', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-sketch)' }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B', border: '1px solid #000000', display: 'inline-block' }} />
+                  On Duty ({onDutyList.length})
+                </p>
+                {onDutyList.map(s => (
+                  <div key={s.id} style={{ display: 'flex', gap: '8px', padding: '3px 0', fontSize: '13px' }}>
+                    <span style={{ color: 'var(--text-secondary)', minWidth: '22px', fontWeight: '700' }}>{s.roll_no.toString().padStart(2, '0')}</span>
+                    <span style={{ fontWeight: '700' }}>{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Search */}
         <div style={{ padding: '12px 24px', borderBottom: '2px solid #000000' }}>

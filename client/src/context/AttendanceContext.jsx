@@ -223,6 +223,22 @@ export function AttendanceProvider({ children }) {
     });
   };
 
+  const clearAttendance = (dateStr, session) => {
+    setDailyData(prev => {
+      const day = getFullDayData(prev[dateStr]);
+      return {
+        ...prev,
+        [dateStr]: {
+          ...day,
+          [session]: {
+            ...day[session],
+            attendance: makeDefault(),
+          },
+        },
+      };
+    });
+  };
+
   const submitSession = async (dateStr, session, submittedBy = 'Class Teacher') => {
     const submittedTime = new Date().toISOString();
     
@@ -409,6 +425,7 @@ export function AttendanceProvider({ children }) {
       currentSemester,
       getSessionsForDate,
       updateAttendance,
+      clearAttendance,
       submitSession,
       unlockSession,
       getStudentStats,

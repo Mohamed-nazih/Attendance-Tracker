@@ -276,6 +276,9 @@ function RegisterView({ onSwitch }) {
         value={password} onChange={e => setPassword(e.target.value)}
         showToggle onToggle={() => setShowPw(p => !p)} disabled={loading}
       />
+      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '-6px 4px 6px', lineHeight: 1.4, fontWeight: '600' }}>
+        Requires: 1 uppercase, 1 lowercase, 1 number, 1 symbol.
+      </p>
       <Input icon={Lock} type={showPw ? 'text' : 'password'} placeholder="Confirm password" value={confirm} onChange={e => setConfirm(e.target.value)} disabled={loading} />
 
       <Btn type="submit" loading={loading}>Register Account 🚀</Btn>

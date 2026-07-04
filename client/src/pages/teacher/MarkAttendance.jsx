@@ -210,7 +210,7 @@ function AttendanceReport({ report }) {
 // ── Main MarkAttendance Component ─────────────────────────────────────────────
 export default function MarkAttendance() {
   const todayStr = format(new Date(), 'yyyy-MM-dd');
-  const { students: ALL_STUDENTS, getSessionsForDate, updateAttendance, submitSession, unlockSession } = useAttendance();
+  const { students: ALL_STUDENTS, getSessionsForDate, updateAttendance, clearAttendance, submitSession, unlockSession } = useAttendance();
   const { profile } = useAuth();
   const [session, setSession] = useState('Morning');
   const [searchQuery, setSearchQuery] = useState('');
@@ -237,6 +237,13 @@ export default function MarkAttendance() {
       unlockSession(todayStr, session);
       setShowReport(false);
       toast('Session unlocked for editing', { icon: '🔓' });
+    }
+  };
+
+  const handleClear = () => {
+    if (window.confirm(`Are you sure you want to reset all students to Present for the ${session} session?`)) {
+      clearAttendance(todayStr, session);
+      toast.success('Attendance cleared', { icon: '🧹' });
     }
   };
 
@@ -518,13 +525,22 @@ export default function MarkAttendance() {
           </button>
         ) : (
           <>
-            <button
-              onClick={handleSubmit}
-              className="brutal-btn"
-              style={{ width: '100%', marginBottom: '10px' }}
-            >
-              <Save size={16} /> Submit Attendance
-            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '8px', marginBottom: '10px' }}>
+              <button
+                onClick={handleSubmit}
+                className="brutal-btn"
+                style={{ width: '100%' }}
+              >
+                <Save size={16} /> Submit
+              </button>
+              <button
+                onClick={handleClear}
+                className="brutal-btn brutal-btn-secondary"
+                style={{ width: '100%', padding: '10px', color: '#EF4444' }}
+              >
+                Clear
+              </button>
+            </div>
             <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontWeight: '700', fontFamily: 'var(--font-sketch)' }}>
               <Lock size={11} /> Will be locked after submission
             </p>
