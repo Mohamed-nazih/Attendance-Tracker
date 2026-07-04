@@ -227,7 +227,7 @@ export default function MarkAttendance() {
   };
 
   const handleSubmit = () => {
-    submitSession(todayStr, session, profile?.name || 'Teacher');
+    submitSession(todayStr, session, profile?.name || 'Teacher', currentSession.attendance);
     setShowReport(true);
     toast.success(`${session} attendance submitted & locked!`, { icon: '🔒' });
   };

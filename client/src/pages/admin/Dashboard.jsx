@@ -70,8 +70,8 @@ function EditAttendancePanel({ dateStr, session, onClose }) {
     Object.entries(editMap).forEach(([studentId, status]) => {
       updateAttendance(dateStr, session, studentId, status);
     });
-    // Submit / lock the session for that date
-    submitSession(dateStr, session, profile?.name || 'Class Teacher');
+    // Submit / lock the session for that date, passing editMap to avoid state closure race condition
+    submitSession(dateStr, session, profile?.name || 'Class Teacher', editMap);
     await new Promise(r => setTimeout(r, 400));
     setSaving(false);
     toast.success(`${session} attendance updated & locked for ${dateStr}!`);

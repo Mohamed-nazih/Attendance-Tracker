@@ -56,6 +56,7 @@ function App() {
                   <RequireAuth role="admin"><MainLayout role="admin" /></RequireAuth>
                 }>
                   <Route index element={<AdminDashboard />} />
+                  <Route path="attendance" element={<MarkAttendance />} />
                   <Route path="students" element={<AdminStudents />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="teachers" element={<AdminTeachers />} />

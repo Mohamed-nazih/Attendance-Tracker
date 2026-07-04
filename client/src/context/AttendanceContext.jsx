@@ -239,7 +239,7 @@ export function AttendanceProvider({ children }) {
     });
   };
 
-  const submitSession = async (dateStr, session, submittedBy = 'Class Teacher') => {
+  const submitSession = async (dateStr, session, submittedBy = 'Class Teacher', overrideAttendanceMap = null) => {
     const submittedTime = new Date().toISOString();
     
     // Optimistic UI update
@@ -251,6 +251,7 @@ export function AttendanceProvider({ children }) {
           ...day,
           [session]: {
             ...day[session],
+            attendance: overrideAttendanceMap || day[session].attendance,
             submittedAt: submittedTime,
             submittedBy,
           },
@@ -260,7 +261,7 @@ export function AttendanceProvider({ children }) {
 
     if (!isDemoMode) {
       try {
-        const currentData = dailyData[dateStr]?.[session]?.attendance || makeDefault();
+        const currentData = overrideAttendanceMap || dailyData[dateStr]?.[session]?.attendance || makeDefault();
         const rowsToUpsert = students.map(s => ({
           student_id: s.id,
           semester: currentSemester,

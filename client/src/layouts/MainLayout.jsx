@@ -23,6 +23,7 @@ const teacherNav = [
 
 const adminNav = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/admin/attendance', label: 'Mark Attendance', icon: ClipboardList },
   { to: '/admin/students', label: 'Students', icon: Users },
   { to: '/admin/teachers', label: 'Teachers', icon: UserCheck },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
@@ -171,9 +172,18 @@ export default function MainLayout({ role = 'teacher' }) {
             <GraduationCap className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             <span className="font-extrabold text-sm uppercase tracking-wider" style={{ fontFamily: 'var(--font-sketch)' }}>24BCAA</span>
           </div>
-          <button className="p-1.5 rounded-lg border-2 border-black bg-white shadow-[1px_1px_0px_0px_#000000]">
-            <Bell className="w-5 h-5" />
-          </button>
+          {role !== 'student' ? (
+            <button
+              onClick={() => navigate(`/${role}/attendance`)}
+              className="p-1.5 rounded-lg border-2 border-black bg-white shadow-[1px_1px_0px_0px_#000000]"
+            >
+              <ClipboardList className="w-5 h-5" />
+            </button>
+          ) : (
+            <button className="p-1.5 rounded-lg border-2 border-black bg-white shadow-[1px_1px_0px_0px_#000000]">
+              <Bell className="w-5 h-5" />
+            </button>
+          )}
         </header>
 
         {/* Page content */}
