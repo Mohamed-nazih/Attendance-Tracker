@@ -23,9 +23,9 @@ function Spinner() {
   );
 }
 
-function PendingApprovalScreen({ user }) {
+function PendingApprovalScreen({ user, forceRejected = false }) {
   const { signOut } = useAuth();
-  const [status, setStatus] = useState('pending'); // 'pending' | 'approved' | 'rejected'
+  const [status, setStatus] = useState(forceRejected ? 'rejected' : 'pending'); // 'pending' | 'approved' | 'rejected'
 
   useEffect(() => {
     // Listen for realtime updates on the 'users' table for this specific user
@@ -143,9 +143,14 @@ export default function RequireAuth({ children, role }) {
 
   if (loading) return <Spinner />;
 
-  // Not logged in or missing profile → send to login
-  if (!user || (!profile && !loading)) {
+  // Not logged in → send to login
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Missing profile but logged in (e.g. deleted/rejected) -> show rejected screen
+  if (!profile && !loading) {
+    return <PendingApprovalScreen user={user} forceRejected={true} />;
   }
 
   // Teacher pending approval

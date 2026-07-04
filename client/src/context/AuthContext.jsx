@@ -128,16 +128,9 @@ export function AuthProvider({ children }) {
     // Get the current session on mount (handles page refresh)
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
+        setUser(session.user);
         const p = await loadProfile(session.user.id);
-        if (!p && !isDemoMode) {
-          // If profile is deleted/rejected, sign them out
-          await supabase.auth.signOut();
-          setUser(null);
-          setProfile(null);
-        } else {
-          setUser(session.user);
-          setProfile(p);
-        }
+        setProfile(p);
       }
       setLoading(false);
     });
@@ -146,15 +139,9 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
+          setUser(session.user);
           const p = await loadProfile(session.user.id);
-          if (!p && !isDemoMode) {
-            await supabase.auth.signOut();
-            setUser(null);
-            setProfile(null);
-          } else {
-            setUser(session.user);
-            setProfile(p);
-          }
+          setProfile(p);
         } else {
           setUser(null);
           setProfile(null);
@@ -257,16 +244,14 @@ export function AuthProvider({ children }) {
     if (data?.user) {
       const signedInProfile = await loadProfile(data.user.id);
       
-      if (!signedInProfile) {
-        await supabase.auth.signOut();
-        setUser(null);
+      if (!signedInProfile && !isDemoMode) {
+        // Just set them so RequireAuth can handle showing the rejected screen
+        setUser(data.user);
         setProfile(null);
-        throw new Error('User profile not found. Your account may have been rejected or deleted.');
+      } else {
+        setUser(data.user);
+        setProfile(signedInProfile);
       }
-      
-      // Let pending teachers stay signed in so they hit the pending screen
-      setUser(data.user);
-      setProfile(signedInProfile);
     }
 
     return data;
