@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import { supabase } from '../lib/supabase';
-import { isDemoMode } from './AuthContext';
+import { isDemoMode, useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
 
 export const ALL_STUDENTS = [
@@ -53,6 +53,7 @@ export const ALL_STUDENTS = [
 const AttendanceContext = createContext(null);
 
 export function AttendanceProvider({ children }) {
+  const { user } = useAuth();
   const [dailyData, setDailyData] = useState({});
   const [students, setStudents] = useState(isDemoMode ? ALL_STUDENTS : []);
   const [currentSemester, setCurrentSemester] = useState(5);
@@ -72,40 +73,40 @@ export function AttendanceProvider({ children }) {
       return;
     }
 
+    if (!user) {
+      setStudents([]);
+      setDailyData({});
+      setLoading(false);
+      return;
+    }
+
     async function loadBackendData() {
       try {
         // 1. Fetch current semester settings
         let sem = 5;
-        const { data: settings } = await supabase.from('settings').select('*').single();
-        if (settings) {
+        const { data: settings, error: settingsError } = await supabase.from('settings').select('*').single();
+        if (settingsError && settingsError.code !== 'PGRST116') {
+          console.warn('Could not load settings:', settingsError.message);
+        } else if (settings) {
           sem = settings.current_semester;
           setCurrentSemester(sem);
-        } else {
-          await supabase.from('settings').insert({ id: 1, current_semester: 5 });
         }
 
         // 2. Fetch or initialize students
-        const { data: studentsData } = await supabase.from('students').select('*').order('roll_no');
-        let activeStudents = studentsData;
-        
-        if (!studentsData || studentsData.length === 0) {
-          // Initialize students in DB if completely empty
-          const mapped = ALL_STUDENTS.map(s => ({
-            roll_no: s.roll_no,
-            register_no: s.reg,
-            name: s.name,
-            email: s.email,
-            june_tw: s.june_tw,
-            june_tdp: s.june_tdp,
-            prev_sem_pct: s.june_pct
-          }));
-          const { data: inserted } = await supabase.from('students').insert(mapped).select();
-          activeStudents = inserted || [];
+        const { data: studentsData, error: studentsError } = await supabase.from('students').select('*').order('roll_no');
+        let activeStudents = [];
+        if (studentsError) {
+          console.warn('Could not load students:', studentsError.message);
+        } else {
+          activeStudents = studentsData || [];
         }
         setStudents(activeStudents);
 
         // 3. Fetch attendance for this semester
-        const { data: attendanceData } = await supabase.from('attendance').select('*').eq('semester', sem);
+        const { data: attendanceData, error: attendanceError } = await supabase.from('attendance').select('*').eq('semester', sem);
+        if (attendanceError) {
+          console.warn('Could not load attendance:', attendanceError.message);
+        }
         
         const newDailyData = {};
         if (attendanceData) {
@@ -169,7 +170,7 @@ export function AttendanceProvider({ children }) {
     return () => {
       cleanup.then(fn => { if (typeof fn === 'function') fn(); });
     };
-  }, []);
+  }, [user]);
 
   // Update a student's email (admin feature)
   const updateStudentEmail = async (studentId, newEmail) => {

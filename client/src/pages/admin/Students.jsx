@@ -11,67 +11,7 @@ function getPercentColor(percent) {
   return '#EF4444';
 }
 
-// ── Add Student Modal ──────────────────────────────────────────────────────────
-function AddStudentModal({ onSave, onClose }) {
-  const [formData, setFormData] = useState({ name: '', roll_no: '', reg: '', email: '' });
-  const [saving, setSaving] = useState(false);
 
-  const handleSave = async () => {
-    if (!formData.name || !formData.roll_no || !formData.reg) {
-      toast.error('Name, Roll Number, and Register Number are required!');
-      return;
-    }
-    setSaving(true);
-    try {
-      await onSave({
-        name: formData.name,
-        roll_no: parseInt(formData.roll_no, 10),
-        register_no: formData.reg, // register_no in DB
-        email: formData.email || '',
-      });
-      toast.success('Student added successfully!');
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || 'Failed to add student. Roll/Reg may already exist.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.55)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
-      }}
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 14 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.94, y: 14 }}
-        className="brutal-card" onClick={e => e.stopPropagation()}
-        style={{ maxWidth: '440px', width: '100%', padding: '28px 24px', background: '#FFFFFF' }}
-      >
-        <h2 style={{ fontSize: '18px', fontWeight: '900', margin: '0 0 20px', fontFamily: 'var(--font-sketch)' }}>Add New Student</h2>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-          <input className="brutal-input" placeholder="Full Name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-          <input className="brutal-input" type="number" placeholder="Roll Number (e.g. 1)" value={formData.roll_no} onChange={e => setFormData({ ...formData, roll_no: e.target.value })} />
-          <input className="brutal-input" placeholder="Register Number (e.g. NIAYBCA001)" value={formData.reg} onChange={e => setFormData({ ...formData, reg: e.target.value })} />
-          <input className="brutal-input" type="email" placeholder="Email Address (Optional)" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="button" onClick={onClose} className="brutal-btn brutal-btn-secondary" style={{ flex: 1 }}>Cancel</button>
-          <button type="button" onClick={handleSave} disabled={saving} className="brutal-btn" style={{ flex: 1, background: 'var(--primary)' }}>
-            {saving ? 'Saving...' : 'Add Student'}
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 // ── Reset Password Modal ───────────────────────────────────────────────────────
 function ResetPasswordModal({ student, onSave, onClose }) {
@@ -254,13 +194,12 @@ function EmailEditModal({ student, onSave, onClose }) {
 }
 
 export default function AdminStudents() {
-  const { students: ALL_STUDENTS, getStudentStats, updateStudentEmail, addStudent } = useAttendance();
+  const { students: ALL_STUDENTS, getStudentStats, updateStudentEmail } = useAttendance();
   const { adminResetUserPassword } = useAuth();
   
   const [search, setSearch] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
   const [resettingStudent, setResettingStudent] = useState(null);
-  const [addingStudent, setAddingStudent] = useState(false);
 
   const students = useMemo(() => {
     return ALL_STUDENTS
@@ -300,13 +239,6 @@ export default function AdminStudents() {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <button
-            onClick={() => setAddingStudent(true)}
-            className="brutal-btn"
-            style={{ padding: '10px 16px', background: 'var(--primary)', height: 'fit-content' }}
-          >
-            + Add Student
-          </button>
           <div className="brutal-card" style={{ padding: '12px 16px', minWidth: '150px' }}>
             <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: '700' }}>Emails Set</p>
             <p style={{ fontSize: '24px', fontWeight: '800', margin: 0, lineHeight: 1, fontFamily: 'var(--font-sketch)' }}>
@@ -487,12 +419,6 @@ export default function AdminStudents() {
 
       {/* Modals */}
       <AnimatePresence>
-        {addingStudent && (
-          <AddStudentModal
-            onSave={addStudent}
-            onClose={() => setAddingStudent(false)}
-          />
-        )}
         {editingStudent && (
           <EmailEditModal
             student={editingStudent}
