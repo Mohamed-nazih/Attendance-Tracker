@@ -187,7 +187,7 @@ function RegisterView({ onSwitch }) {
         password,
         fullName: finalName,
         registerNo: finalReg,
-        role: role === 'teacher' ? 'pending_teacher' : role,
+        role,
         username: finalUsername,
       });
       toast.success('Account created! Sign in now using your credentials.');
@@ -361,27 +361,11 @@ export default function Login() {
 
   // If the user is already fully loaded and logged in, redirect them away from the login screen
   useEffect(() => {
-    if (user && profile && profile.role !== 'pending_teacher') {
+    if (user && profile) {
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
   }, [user, profile, navigate, location]);
-
-  const { signOut } = useAuth();
-
-  if (profile?.role === 'pending_teacher') {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-base)', padding: '24px' }}>
-        <div className="brutal-card" style={{ padding: '32px 28px', maxWidth: '400px', width: '100%', textAlign: 'center', background: '#FFFFFF' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '900', margin: '0 0 12px', fontFamily: 'var(--font-sketch)' }}>Waiting for Approval</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px', fontWeight: '600' }}>
-            Your teacher account has been created successfully! However, you must wait for an administrator to approve your account before you can log in.
-          </p>
-          <Btn onClick={signOut}>Sign Out</Btn>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
