@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Eye, EyeOff, Mail, Lock, User, Hash, ArrowLeft, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, isDemoMode } from '../context/AuthContext';
 import { DEFAULT_CLASS_TEACHER, usernameToEmail } from '../constants/auth';
 import { useAttendance, ALL_STUDENTS } from '../context/AttendanceContext';
 import logo from '../assets/logo.svg';
@@ -159,11 +159,36 @@ function RegisterView({ onSwitch }) {
       if (!rollNo) { toast.error('Please enter your roll number'); return; }
       if (!studentMatch) { toast.error('Roll number not found (must be 1 to 43)'); return; }
       if (!studentUsername.trim()) { toast.error('Please enter a username'); return; }
-      if (!studentMatch.email) { toast.error('Email not set for this student. Contact your class teacher.'); return; }
+      
+      setLoading(true);
+      let dbEmail = null;
+      try {
+        if (isDemoMode) {
+           dbEmail = studentMatch.email;
+        } else {
+           const { data: dbStudent, error: dbError } = await supabase
+             .from('students')
+             .select('email')
+             .eq('roll_no', parsedRoll)
+             .single();
+             
+           if (!dbError && dbStudent) {
+             dbEmail = dbStudent.email;
+           }
+        }
+      } catch (err) {
+        console.error('Error fetching student email:', err);
+      }
+      setLoading(false);
+
+      if (!dbEmail || dbEmail.trim() === '') { 
+        toast.error('Email not set for this student. Contact your class teacher to update it in the admin dashboard.'); 
+        return; 
+      }
       
       finalName = studentUsername.trim();
       finalReg = studentMatch.reg;
-      finalEmail = studentMatch.email;
+      finalEmail = dbEmail.trim();
     } else {
       if (!teacherUsername.trim()) { toast.error('Please enter a username'); return; }
       if (!teacherEmail.trim()) { toast.error('Please enter your email'); return; }
