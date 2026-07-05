@@ -109,7 +109,7 @@ function LoginView({ onSwitch }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Input icon={User} placeholder="Roll No (Student) / Username (Teacher)" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
+      <Input icon={User} placeholder="Register No (Student) / Username (Teacher)" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
       <Input
         icon={Lock} type={showPw ? 'text' : 'password'} placeholder="Password"
         value={password} onChange={e => setPassword(e.target.value)}

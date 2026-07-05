@@ -210,16 +210,7 @@ export function AuthProvider({ children }) {
 
   async function signIn({ email, username, password }) {
     let loginEmail = '';
-    let input = (username || email || '').trim();
-
-    // If input is a roll number (e.g. '27'), translate it to register number
-    const rollNo = parseInt(input);
-    if (!isNaN(rollNo) && String(rollNo) === input) {
-      const studentMatch = ALL_STUDENTS.find(s => s.roll_no === rollNo);
-      if (studentMatch) {
-        input = studentMatch.reg;
-      }
-    }
+    const input = (username || email || '').trim();
 
     if (input.includes('@')) {
       // Direct email login
