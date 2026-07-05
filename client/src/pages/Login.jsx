@@ -160,7 +160,7 @@ function RegisterView({ onSwitch }) {
       finalName = studentMatch.name;
       finalReg = studentMatch.reg;
       finalEmail = `roll${parsedRoll}@student.local`;
-      finalUsername = String(parsedRoll); // Username is just the roll number
+      finalUsername = studentMatch.name; // Username is their name as requested
     } else {
       if (!teacherUsername.trim()) { toast.error('Please enter a username'); return; }
       if (!teacherEmail.trim()) { toast.error('Please enter your email'); return; }
