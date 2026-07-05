@@ -210,7 +210,12 @@ export function AuthProvider({ children }) {
 
   async function signIn({ email, username, password }) {
     let loginEmail = '';
-    const input = (username || email || '').trim();
+    let input = (username || email || '').trim();
+
+    // Auto-uppercase register numbers (e.g., niaybca047 -> NIAYBCA047)
+    if (input.toLowerCase().startsWith('nia')) {
+      input = input.toUpperCase();
+    }
 
     if (input.includes('@')) {
       // Direct email login
