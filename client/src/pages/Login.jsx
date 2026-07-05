@@ -109,7 +109,7 @@ function LoginView({ onSwitch }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Input icon={User} placeholder="Username or Email" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
+      <Input icon={User} placeholder="Roll No (Student) / Username (Teacher)" value={username} onChange={e => setUsername(e.target.value)} disabled={loading} />
       <Input
         icon={Lock} type={showPw ? 'text' : 'password'} placeholder="Password"
         value={password} onChange={e => setPassword(e.target.value)}
@@ -134,38 +134,16 @@ function RegisterView({ onSwitch }) {
 
   const [role,            setRole]            = useState('student');
   const [rollNo,          setRollNo]          = useState('');
-  const [studentUsername, setStudentUsername]  = useState('');
   const [teacherUsername, setTeacherUsername]  = useState('');
   const [teacherEmail,    setTeacherEmail]    = useState('');
   const [password,        setPassword]        = useState('');
   const [confirm,         setConfirm]         = useState('');
   const [showPw,          setShowPw]          = useState(false);
   const [loading,         setLoading]         = useState(false);
-  const [liveEmail,       setLiveEmail]       = useState(null);
-  const [fetchingEmail,   setFetchingEmail]   = useState(false);
-
-  // Auto-find student details from Roll Number
   const parsedRoll = parseInt(rollNo);
   const studentMatch = role === 'student' && !isNaN(parsedRoll)
     ? ALL_STUDENTS.find(s => s.roll_no === parsedRoll)
     : null;
-
-  useEffect(() => {
-    if (role === 'student' && studentMatch) {
-      if (isDemoMode) {
-        setLiveEmail(studentMatch.email || null);
-        return;
-      }
-      setFetchingEmail(true);
-      setLiveEmail(null);
-      supabase.from('students').select('email').eq('roll_no', parsedRoll).single().then(({ data }) => {
-        setLiveEmail(data?.email || null);
-        setFetchingEmail(false);
-      });
-    } else {
-      setLiveEmail(null);
-    }
-  }, [role, studentMatch?.roll_no, parsedRoll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -173,47 +151,23 @@ function RegisterView({ onSwitch }) {
     let finalEmail = '';
     let finalName = '';
     let finalReg = null;
+    let finalUsername = '';
 
     if (role === 'student') {
       if (!rollNo) { toast.error('Please enter your roll number'); return; }
       if (!studentMatch) { toast.error('Roll number not found (must be 1 to 43)'); return; }
-      if (!studentUsername.trim()) { toast.error('Please enter a username'); return; }
       
-      setLoading(true);
-      let dbEmail = null;
-      try {
-        if (isDemoMode) {
-           dbEmail = studentMatch.email;
-        } else {
-           const { data: dbStudent, error: dbError } = await supabase
-             .from('students')
-             .select('email')
-             .eq('roll_no', parsedRoll)
-             .single();
-             
-           if (!dbError && dbStudent) {
-             dbEmail = dbStudent.email;
-           }
-        }
-      } catch (err) {
-        console.error('Error fetching student email:', err);
-      }
-      setLoading(false);
-
-      if (!dbEmail || dbEmail.trim() === '') { 
-        toast.error('Email not set for this student. Contact your class teacher to update it in the admin dashboard.'); 
-        return; 
-      }
-      
-      finalName = studentUsername.trim();
+      finalName = studentMatch.name;
       finalReg = studentMatch.reg;
-      finalEmail = dbEmail.trim();
+      finalEmail = `roll${parsedRoll}@student.local`;
+      finalUsername = String(parsedRoll); // Username is just the roll number
     } else {
       if (!teacherUsername.trim()) { toast.error('Please enter a username'); return; }
       if (!teacherEmail.trim()) { toast.error('Please enter your email'); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(teacherEmail.trim())) { toast.error('Please enter a valid email address'); return; }
       finalName = teacherUsername.trim();
       finalEmail = teacherEmail.trim();
+      finalUsername = teacherUsername.trim();
     }
 
     if (!password || !confirm) { toast.error('Please fill in password fields'); return; }
@@ -234,7 +188,7 @@ function RegisterView({ onSwitch }) {
         fullName: finalName,
         registerNo: finalReg,
         role,
-        username: role === 'student' ? studentUsername.trim() : teacherUsername.trim(),
+        username: finalUsername,
       });
       toast.success('Account created! Sign in now using your credentials.');
       onSwitch('login');
@@ -289,34 +243,15 @@ function RegisterView({ onSwitch }) {
             min="1"
             max="43"
           />
-          <Input
-            icon={User}
-            placeholder="Username"
-            value={studentUsername}
-            onChange={e => setStudentUsername(e.target.value)}
-            disabled={loading}
-          />
           {studentMatch && (
             <div style={{
-              background: liveEmail ? '#E2FBE9' : '#FEF3C7', border: '2px solid #000000', borderRadius: '8px',
+              background: '#E2FBE9', border: '2px solid #000000', borderRadius: '8px',
               padding: '10px 14px', fontSize: '13px', color: '#000000', fontWeight: '800',
               boxShadow: '2px 2px 0px 0px #000000', fontFamily: 'var(--font-sketch)',
               lineHeight: 1.4
             }}>
               <p style={{ margin: '0 0 3px' }}>👤 Name: {studentMatch.name}</p>
-              <p style={{ margin: '0 0 3px' }}>🆔 Reg No: {studentMatch.reg}</p>
-              <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                📧 Email:{' '}
-                {fetchingEmail ? (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)' }}>
-                    <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Checking...
-                  </span>
-                ) : liveEmail ? (
-                  liveEmail
-                ) : (
-                  '⚠ Not set — contact class teacher'
-                )}
-              </p>
+              <p style={{ margin: 0 }}>🆔 Reg No: {studentMatch.reg}</p>
             </div>
           )}
         </div>

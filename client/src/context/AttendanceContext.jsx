@@ -172,13 +172,7 @@ export function AttendanceProvider({ children }) {
     };
   }, [user]);
 
-  // Update a student's email (admin feature)
-  const updateStudentEmail = async (studentId, newEmail) => {
-    if (!isDemoMode) {
-      await supabase.from('students').update({ email: newEmail }).eq('id', studentId);
-    }
-    setStudents(prev => prev.map(s => s.id === studentId ? { ...s, email: newEmail } : s));
-  };
+
 
   // Add a new student (admin feature)
   const addStudent = async (studentData) => {
@@ -432,7 +426,6 @@ export function AttendanceProvider({ children }) {
       getStudentStats,
       getTotalWorkingDays,
       startNewSemester,
-      updateStudentEmail,
       addStudent
     }}>
       {children}
