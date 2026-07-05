@@ -244,7 +244,6 @@ export default function AdminStudents() {
                       </span>
                     </div>
                   </div>
-                  </div>
                   <span style={{ fontSize: '12px', fontWeight: '800' }}>
                     {student.stats.presentCount.toFixed(1)} / {student.stats.totalWorkingDays}
                   </span>
