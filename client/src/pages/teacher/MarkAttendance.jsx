@@ -14,6 +14,72 @@ const STATUS_STYLE = {
   'On Duty': { bg: '#FEF3C7', color: '#664D03', border: '#000000', dot: '#F59E0B' },
 };
 
+function HoldToSubmit({ onSubmit }) {
+  const [progress, setProgress] = useState(0);
+  const intervalRef = React.useRef(null);
+
+  const startHold = () => {
+    setProgress(0);
+    intervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(intervalRef.current);
+          onSubmit();
+          return 100;
+        }
+        return prev + 2; // Fills in about 1 second
+      });
+    }, 20);
+  };
+
+  const endHold = () => {
+    if (progress < 100) {
+      clearInterval(intervalRef.current);
+      setProgress(0);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  return (
+    <button
+      onMouseDown={startHold}
+      onMouseUp={endHold}
+      onMouseLeave={endHold}
+      onTouchStart={startHold}
+      onTouchEnd={endHold}
+      className="brutal-btn"
+      style={{
+        width: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        transition: 'transform 0.1s',
+        transform: progress > 0 && progress < 100 ? 'scale(0.98)' : 'scale(1)',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          height: '100%',
+          width: `${progress}%`,
+          background: 'rgba(0,0,0,0.15)',
+          transition: progress === 0 ? 'width 0.2s ease-out' : 'none',
+        }}
+      />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+        <Save size={16} /> 
+        {progress > 0 && progress < 100 ? 'Hold...' : 'Submit'}
+      </div>
+    </button>
+  );
+}
+
 function StatusChip({ status }) {
   const s = STATUS_STYLE[status];
   return (
@@ -526,13 +592,7 @@ export default function MarkAttendance() {
         ) : (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '8px', marginBottom: '10px' }}>
-              <button
-                onClick={handleSubmit}
-                className="brutal-btn"
-                style={{ width: '100%' }}
-              >
-                <Save size={16} /> Submit
-              </button>
+              <HoldToSubmit onSubmit={handleSubmit} />
               <button
                 onClick={handleClear}
                 className="brutal-btn brutal-btn-secondary"
