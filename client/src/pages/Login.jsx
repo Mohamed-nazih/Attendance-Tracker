@@ -141,12 +141,31 @@ function RegisterView({ onSwitch }) {
   const [confirm,         setConfirm]         = useState('');
   const [showPw,          setShowPw]          = useState(false);
   const [loading,         setLoading]         = useState(false);
+  const [liveEmail,       setLiveEmail]       = useState(null);
+  const [fetchingEmail,   setFetchingEmail]   = useState(false);
 
   // Auto-find student details from Roll Number
   const parsedRoll = parseInt(rollNo);
   const studentMatch = role === 'student' && !isNaN(parsedRoll)
     ? ALL_STUDENTS.find(s => s.roll_no === parsedRoll)
     : null;
+
+  useEffect(() => {
+    if (role === 'student' && studentMatch) {
+      if (isDemoMode) {
+        setLiveEmail(studentMatch.email || null);
+        return;
+      }
+      setFetchingEmail(true);
+      setLiveEmail(null);
+      supabase.from('students').select('email').eq('roll_no', parsedRoll).single().then(({ data }) => {
+        setLiveEmail(data?.email || null);
+        setFetchingEmail(false);
+      });
+    } else {
+      setLiveEmail(null);
+    }
+  }, [role, studentMatch?.roll_no, parsedRoll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -279,14 +298,25 @@ function RegisterView({ onSwitch }) {
           />
           {studentMatch && (
             <div style={{
-              background: studentMatch.email ? '#E2FBE9' : '#FEF3C7', border: '2px solid #000000', borderRadius: '8px',
+              background: liveEmail ? '#E2FBE9' : '#FEF3C7', border: '2px solid #000000', borderRadius: '8px',
               padding: '10px 14px', fontSize: '13px', color: '#000000', fontWeight: '800',
               boxShadow: '2px 2px 0px 0px #000000', fontFamily: 'var(--font-sketch)',
               lineHeight: 1.4
             }}>
               <p style={{ margin: '0 0 3px' }}>👤 Name: {studentMatch.name}</p>
               <p style={{ margin: '0 0 3px' }}>🆔 Reg No: {studentMatch.reg}</p>
-              <p style={{ margin: 0 }}>📧 Email: {studentMatch.email || '⚠ Not set — contact class teacher'}</p>
+              <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                📧 Email:{' '}
+                {fetchingEmail ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)' }}>
+                    <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Checking...
+                  </span>
+                ) : liveEmail ? (
+                  liveEmail
+                ) : (
+                  '⚠ Not set — contact class teacher'
+                )}
+              </p>
             </div>
           )}
         </div>
