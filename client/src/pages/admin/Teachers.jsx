@@ -283,29 +283,27 @@ export default function Teachers() {
                   <StatusBadge approved={teacher.approved === true} />
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {teacher.approved !== true && (
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(teacher)}
-                          disabled={approvingId === teacher.id || rejectingId === teacher.id}
-                          className="brutal-btn"
-                          title="Approve"
-                          style={{ padding: '7px 10px', fontSize: '12px', whiteSpace: 'nowrap', background: '#E2FBE9', color: '#0F5132' }}
-                        >
-                          <Check size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleReject(teacher)}
-                          disabled={rejectingId === teacher.id || approvingId === teacher.id}
-                          className="brutal-btn brutal-btn-secondary"
-                          title="Reject"
-                          style={{ padding: '7px 10px', fontSize: '12px', background: '#FEE2E2', color: '#EF4444' }}
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(teacher)}
+                        disabled={approvingId === teacher.id || rejectingId === teacher.id}
+                        className="brutal-btn"
+                        title="Approve"
+                        style={{ padding: '7px 10px', fontSize: '12px', whiteSpace: 'nowrap', background: '#E2FBE9', color: '#0F5132' }}
+                      >
+                        <Check size={16} />
+                      </button>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => handleReject(teacher)}
+                      disabled={rejectingId === teacher.id || approvingId === teacher.id}
+                      className="brutal-btn brutal-btn-secondary"
+                      title={teacher.approved ? "Delete" : "Reject"}
+                      style={{ padding: '7px 10px', fontSize: '12px', background: '#FEE2E2', color: '#EF4444' }}
+                    >
+                      <X size={16} />
+                    </button>
                     <button
                       onClick={() => setResettingTeacher(teacher)}
                       title="Reset Password"

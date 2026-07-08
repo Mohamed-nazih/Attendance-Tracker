@@ -22,15 +22,19 @@ function HoldToSubmit({ onSubmit }) {
     setProgress(0);
     intervalRef.current = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(intervalRef.current);
-          onSubmit();
-          return 100;
-        }
+        if (prev >= 100) return 100;
         return prev + 2; // Fills in about 1 second
       });
     }, 20);
   };
+
+  React.useEffect(() => {
+    if (progress >= 100) {
+      clearInterval(intervalRef.current);
+      onSubmit();
+      setProgress(0);
+    }
+  }, [progress, onSubmit]);
 
   const endHold = () => {
     if (progress < 100) {
@@ -187,7 +191,7 @@ function AttendanceReport({ report }) {
         }}>
           <CheckCircle size={20} color="#000000" style={{ flexShrink: 0 }} />
           <p style={{ margin: 0, fontWeight: '700', color: '#000000', fontSize: '14px', fontFamily: 'var(--font-sketch)' }}>
-            All 43 students are present today! 🎉
+            All {report.total} students are present today! 🎉
           </p>
         </div>
       )}
@@ -288,7 +292,7 @@ export default function MarkAttendance() {
 
   const handleCycle = (id) => {
     if (isLocked) return;
-    const cur = currentSession.attendance[id];
+    const cur = currentSession.attendance[id] || 'Present';
     updateAttendance(todayStr, session, id, STATUS_CYCLE[cur]);
   };
 
@@ -320,9 +324,9 @@ export default function MarkAttendance() {
 
   const att = currentSession.attendance;
   const stats = {
-    present: ALL_STUDENTS.filter(s => att[s.id] === 'Present').length,
-    absent: ALL_STUDENTS.filter(s => att[s.id] === 'Absent').length,
-    onDuty: ALL_STUDENTS.filter(s => att[s.id] === 'On Duty').length,
+    present: ALL_STUDENTS.filter(s => (att[s.id] || 'Present') === 'Present').length,
+    absent: ALL_STUDENTS.filter(s => (att[s.id] || 'Present') === 'Absent').length,
+    onDuty: ALL_STUDENTS.filter(s => (att[s.id] || 'Present') === 'On Duty').length,
   };
   const absentList = ALL_STUDENTS.filter(s => att[s.id] === 'Absent');
   const onDutyList = ALL_STUDENTS.filter(s => att[s.id] === 'On Duty');
@@ -472,6 +476,15 @@ export default function MarkAttendance() {
           />
         </div>
 
+        {/* Instruction */}
+        {!isLocked && (
+          <div style={{ marginBottom: '16px', padding: '10px 14px', background: '#FEF3C7', border: '2px solid #000000', borderRadius: '8px', boxShadow: '2px 2px 0px 0px #000000' }}>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#000000', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              💡 <span>Click a student to change status: <strong>1 click</strong> = Absent, <strong>2 clicks</strong> = On Duty.</span>
+            </p>
+          </div>
+        )}
+
         {/* Student List */}
         <div className="brutal-card" style={{ overflow: 'hidden' }}>
           {filtered.length === 0 && (
@@ -507,7 +520,7 @@ export default function MarkAttendance() {
                 </div>
                 <span style={{ fontWeight: '700', fontSize: '14px' }}>{student.name}</span>
               </div>
-              <StatusChip status={att[student.id]} />
+              <StatusChip status={att[student.id] || 'Present'} />
             </motion.div>
           ))}
         </div>
@@ -575,7 +588,7 @@ export default function MarkAttendance() {
           {stats.present === ALL_STUDENTS.length && (
             <div style={{ display: 'flex', gap: '8px', padding: '10px 12px', background: '#E2FBE9', borderRadius: '6px', border: '2px solid #000000', marginTop: '4px' }}>
               <CheckCircle size={16} color="#000000" style={{ flexShrink: 0, marginTop: 1 }} />
-              <p style={{ fontSize: '12px', color: '#000000', margin: 0, fontWeight: '700', fontFamily: 'var(--font-sketch)' }}>All 43 students are present.</p>
+              <p style={{ fontSize: '12px', color: '#000000', margin: 0, fontWeight: '700', fontFamily: 'var(--font-sketch)' }}>All {ALL_STUDENTS.length} students are present.</p>
             </div>
           )}
         </div>

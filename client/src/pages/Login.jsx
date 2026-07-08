@@ -3,10 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Eye, EyeOff, Mail, Lock, User, Hash, ArrowLeft, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { supabase } from '../lib/supabase';
 import { useAuth, isDemoMode } from '../context/AuthContext';
 import { DEFAULT_CLASS_TEACHER, usernameToEmail } from '../constants/auth';
-import { useAttendance, ALL_STUDENTS } from '../context/AttendanceContext';
+import { useAttendance } from '../context/AttendanceContext';
 import logo from '../assets/logo.svg';
 
 function Input({ icon: Icon, type = 'text', placeholder, value, onChange, onToggle, showToggle, disabled, ...rest }) {
@@ -89,12 +88,7 @@ function LoginView({ onSwitch }) {
       
       // Navigate directly based on the user's role to prevent RootRedirect race conditions
       if (data?.user) {
-        // Find their role from the context state which will be populated
-        const role = data.user.user_metadata?.role || 'student'; 
-        // Or wait for the context to update and use the profile, but we can also just fetch it again to be 100% sure:
-        const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single();
-        
-        const finalRole = profile?.role || role;
+        const finalRole = data.user.role || 'student';
         const redirects = { student: '/student', teacher: '/teacher', admin: '/admin' };
         navigate(from || redirects[finalRole] || '/', { replace: true });
       } else {
@@ -131,6 +125,7 @@ function LoginView({ onSwitch }) {
 // ── View: Register ────────────────────────────────────────────────────────────
 function RegisterView({ onSwitch }) {
   const { signUp } = useAuth();
+  const { students: allStudents } = useAttendance();
 
   const [role,            setRole]            = useState('student');
   const [rollNo,          setRollNo]          = useState('');
@@ -142,7 +137,7 @@ function RegisterView({ onSwitch }) {
   const [loading,         setLoading]         = useState(false);
   const parsedRoll = parseInt(rollNo);
   const studentMatch = role === 'student' && !isNaN(parsedRoll)
-    ? ALL_STUDENTS.find(s => s.roll_no === parsedRoll)
+    ? allStudents.find(s => s.roll_no === parsedRoll)
     : null;
 
   const handleSubmit = async (e) => {
@@ -155,10 +150,10 @@ function RegisterView({ onSwitch }) {
 
     if (role === 'student') {
       if (!rollNo) { toast.error('Please enter your roll number'); return; }
-      if (!studentMatch) { toast.error('Roll number not found (must be 1 to 43)'); return; }
+      if (!studentMatch) { toast.error('Student not found. Contact class teacher to add'); return; }
       
       finalName = studentMatch.name;
-      finalReg = studentMatch.reg;
+      finalReg = studentMatch.reg || studentMatch.register_no;
       finalEmail = `roll${parsedRoll}@student.local`;
       finalUsername = studentMatch.name; // Username is their name as requested
     } else {
@@ -241,12 +236,11 @@ function RegisterView({ onSwitch }) {
           <Input
             icon={Hash}
             type="number"
-            placeholder="Enter Roll Number (1 - 43)"
+            placeholder="Enter Roll Number"
             value={rollNo}
             onChange={e => setRollNo(e.target.value)}
             disabled={loading}
             min="1"
-            max="43"
           />
           {studentMatch && (
             <div style={{
@@ -347,7 +341,7 @@ function ForgotView({ onSwitch }) {
 
 // ── Main Login page ───────────────────────────────────────────────────────────
 const TITLES = {
-  login:    { heading: 'Welcome back',          sub: 'Sign in to 24BCAA' },
+  login:    { heading: 'Welcome back',          sub: 'Sign in to AttendFlow' },
   register: { heading: 'Create account',        sub: 'Students and teachers can register here' },
   forgot:   { heading: 'Reset password',        sub: 'We\'ll email you a link' },
 };
@@ -385,7 +379,7 @@ export default function Login() {
             margin: '0 auto 16px',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-            <img src={logo} alt="24BCAA Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src={logo} alt="AttendFlow Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <AnimatePresence mode="wait">
             <motion.div
@@ -420,8 +414,20 @@ export default function Login() {
           </AnimatePresence>
         </div>
 
+        {/* Demo Credentials */}
+        {isDemoMode && (
+          <div className="brutal-card" style={{ marginTop: '20px', padding: '16px', background: '#FFF3C4', border: '2px solid #000000', fontSize: '13px', boxShadow: '4px 4px 0px 0px #000000' }}>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800' }}>👋 Demo Login Credentials</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '14px' }}>
+              <div><strong>Admin:</strong>   admin / admin123</div>
+              <div><strong>Teacher:</strong> teacher / teacher123</div>
+              <div><strong>Student:</strong> student / student123</div>
+            </div>
+          </div>
+        )}
+
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '24px', fontWeight: '600', fontFamily: 'var(--font-sketch)' }}>
-          Naipunnya Institute · BCA Honours A
+          AttendFlow · Student Management System
         </p>
       </motion.div>
     </div>

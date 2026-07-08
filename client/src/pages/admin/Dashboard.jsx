@@ -198,6 +198,13 @@ function EditAttendancePanel({ dateStr, session, onClose }) {
           />
         </div>
 
+        {/* Instruction */}
+        <div style={{ padding: '10px 24px', background: '#FEF3C7', borderBottom: '2px solid #000000' }}>
+          <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#000000', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            💡 <span>Click a student to change status: <strong>1 click</strong> = Absent, <strong>2 clicks</strong> = On Duty.</span>
+          </p>
+        </div>
+
         {/* Student List */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
           {filtered.map((student, idx) => {

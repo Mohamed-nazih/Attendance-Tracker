@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
 import { LogOut, XCircle, CheckCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,33 +26,6 @@ function PendingApprovalScreen({ user, forceRejected = false }) {
   const { signOut } = useAuth();
   const [status, setStatus] = useState(forceRejected ? 'rejected' : 'pending'); // 'pending' | 'approved' | 'rejected'
 
-  useEffect(() => {
-    // Listen for realtime updates on the 'users' table for this specific user
-    const channel = supabase.channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${user.id}` },
-        (payload) => {
-          if (payload.new && payload.new.approved === true) {
-            setStatus('approved');
-            // Wait 2 seconds for the toast to be seen, then reload so AuthContext picks up the new profile
-            setTimeout(() => window.location.reload(), 1500);
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'users', filter: `id=eq.${user.id}` },
-        () => {
-          setStatus('rejected');
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user.id]);
 
   return (
     <div style={{

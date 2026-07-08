@@ -69,7 +69,7 @@ export default function MainLayout({ role = 'teacher' }) {
           <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
         </div>
         <div>
-          <p className="font-extrabold text-lg uppercase tracking-tight" style={{ fontFamily: 'var(--font-sketch)' }}>24BCAA</p>
+          <p className="font-extrabold text-lg uppercase tracking-tight" style={{ fontFamily: 'var(--font-sketch)' }}>AttendFlow</p>
           <span className="text-xs px-2 py-0.5 rounded-full border border-black font-bold uppercase" style={{ background: '#FFFFFF', fontSize: '10px' }}>
             {meta.label}
           </span>
@@ -171,7 +171,7 @@ export default function MainLayout({ role = 'teacher' }) {
           </button>
           <div className="flex items-center gap-2">
             <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
-            <span className="font-extrabold text-sm uppercase tracking-wider" style={{ fontFamily: 'var(--font-sketch)' }}>24BCAA</span>
+            <span className="font-extrabold text-sm uppercase tracking-wider" style={{ fontFamily: 'var(--font-sketch)' }}>AttendFlow</span>
           </div>
           {role !== 'student' ? (
             <button

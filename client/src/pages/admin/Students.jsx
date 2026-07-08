@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, Users, Mail, Pencil, Check, X, Key } from 'lucide-react';
+import { Search, Users, Mail, Pencil, Check, X, Key, UserPlus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAttendance } from '../../context/AttendanceContext';
@@ -9,6 +9,113 @@ function getPercentColor(percent) {
   if (percent >= 85) return '#22C55E';
   if (percent >= 75) return '#C9F135';
   return '#EF4444';
+}
+
+// ── Create Student Modal ───────────────────────────────────────────────────────
+function CreateStudentModal({ onSave, onClose, nextRollNo }) {
+  const [name, setName] = useState('');
+  const [reg, setReg] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!name.trim() || !reg.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({
+        name: name.trim(),
+        reg: reg.trim(),
+        register_no: reg.trim(),
+        email: `roll${nextRollNo}@attendflow.local`, // Auto-generated dummy email
+        roll_no: nextRollNo
+      });
+      toast.success(`Student ${name} created successfully`);
+      onClose();
+    } catch (err) {
+      toast.error(err.message || 'Failed to create student');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 14 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 14 }}
+        className="brutal-card"
+        onClick={e => e.stopPropagation()}
+        style={{ maxWidth: '440px', width: '100%', padding: '28px 24px', background: '#FFFFFF' }}
+      >
+        <div style={{
+          width: 48, height: 48, borderRadius: '10px', border: '3px solid #000000',
+          background: '#C7FF2B', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 16px', boxShadow: '2px 2px 0px 0px #000000',
+        }}>
+          <UserPlus size={22} color="#000000" />
+        </div>
+
+        <h2 style={{ fontSize: '18px', fontWeight: '900', margin: '0 0 20px', textAlign: 'center', color: '#000000' }}>
+          Create New Student
+        </h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            disabled={saving}
+            className="brutal-input"
+          />
+          <input
+            type="text"
+            placeholder="Register Number"
+            value={reg}
+            onChange={e => setReg(e.target.value)}
+            disabled={saving}
+            className="brutal-input"
+          />
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, fontWeight: '700' }}>
+            Roll Number: {nextRollNo} (Auto-assigned)
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="brutal-btn"
+            style={{ flex: 1, background: '#F3F4F6' }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="brutal-btn"
+            style={{ flex: 1, background: 'var(--primary)' }}
+          >
+            {saving ? 'Creating...' : 'Create Student'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
 
 
@@ -105,11 +212,12 @@ function ResetPasswordModal({ student, onSave, onClose }) {
 }
 
 export default function AdminStudents() {
-  const { students: ALL_STUDENTS, getStudentStats } = useAttendance();
+  const { students: ALL_STUDENTS, getStudentStats, addStudent, removeStudent } = useAttendance();
   const { adminResetUserPassword } = useAuth();
   
   const [search, setSearch] = useState('');
   const [resettingStudent, setResettingStudent] = useState(null);
+  const [creatingStudent, setCreatingStudent] = useState(false);
 
   const students = useMemo(() => {
     return ALL_STUDENTS
@@ -145,12 +253,21 @@ export default function AdminStudents() {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div className="brutal-card" style={{ padding: '12px 16px', minWidth: '150px' }}>
+          <div className="brutal-card" style={{ padding: '12px 16px', minWidth: '120px' }}>
             <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: '700' }}>Class Average</p>
             <p style={{ fontSize: '24px', fontWeight: '800', margin: 0, lineHeight: 1, fontFamily: 'var(--font-sketch)' }}>
               {classAverage.toFixed(2)}%
             </p>
           </div>
+          
+          <button
+            onClick={() => setCreatingStudent(true)}
+            className="brutal-btn"
+            style={{ padding: '12px 16px', height: '100%', display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <UserPlus size={18} />
+            <span>Create Student</span>
+          </button>
         </div>
       </div>
 
@@ -179,7 +296,7 @@ export default function AdminStudents() {
         <div style={{ minWidth: '860px' }}>
           <div style={{
                 display: 'grid',
-                gridTemplateColumns: '60px 2fr 1fr 1.2fr 80px',
+                gridTemplateColumns: '60px 2fr 1fr 1.2fr 90px',
                 gap: '12px',
                 padding: '12px 18px',
                 borderBottom: '2px solid #000000',
@@ -209,7 +326,7 @@ export default function AdminStudents() {
                   key={student.id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '60px 2fr 1fr 1.2fr 80px',
+                    gridTemplateColumns: '60px 2fr 1fr 1.2fr 90px',
                     gap: '12px',
                     alignItems: 'center',
                     padding: '12px 18px',
@@ -281,6 +398,25 @@ export default function AdminStudents() {
                     >
                       <Key size={13} color="#000000" />
                     </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to remove ${student.name}?`)) {
+                          removeStudent(student.id);
+                          toast.success(`Removed ${student.name}`);
+                        }
+                      }}
+                      title="Remove Student"
+                      style={{
+                        width: 30, height: 30, borderRadius: '6px', border: '2px solid #000000',
+                        background: '#FEE2E2',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', boxShadow: '1px 1px 0px 0px #000000',
+                        transition: 'all 0.1s',
+                        color: '#EF4444'
+                      }}
+                    >
+                      <Trash2 size={13} color="currentColor" />
+                    </button>
                   </div>
                 </div>
               );
@@ -301,6 +437,13 @@ export default function AdminStudents() {
             student={resettingStudent}
             onSave={adminResetUserPassword}
             onClose={() => setResettingStudent(null)}
+          />
+        )}
+        {creatingStudent && (
+          <CreateStudentModal
+            onSave={addStudent}
+            onClose={() => setCreatingStudent(false)}
+            nextRollNo={ALL_STUDENTS.length > 0 ? Math.max(...ALL_STUDENTS.map(s => s.roll_no)) + 1 : 1}
           />
         )}
       </AnimatePresence>
