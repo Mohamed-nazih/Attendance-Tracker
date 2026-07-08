@@ -417,7 +417,7 @@ export default function Login() {
         {/* Demo Credentials */}
         {isDemoMode && (
           <div className="brutal-card" style={{ marginTop: '20px', padding: '16px', background: '#FFF3C4', border: '2px solid #000000', fontSize: '13px', boxShadow: '4px 4px 0px 0px #000000' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800' }}>👋 Demo Login Credentials</h3>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800' }}>Demo Login Credentials</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '14px' }}>
               <div><strong>Admin:</strong>   admin / admin123</div>
               <div><strong>Teacher:</strong> teacher / teacher123</div>
